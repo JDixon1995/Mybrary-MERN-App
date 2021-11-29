@@ -4,7 +4,10 @@ if (process.env.NODE_ENV !== 'production') {
 
 const express = require('express')
 const expressLayouts = require('express-ejs-layouts')
+
 const indexRouter = require('./routes/index')
+const authorRouter = require('./routes/authors')
+
 const mongoose = require('mongoose')
 
 
@@ -25,6 +28,7 @@ db.on('error', (err) => console.error(err))
 db.once('open', () => console.log('Connected to Mongoose.'))
 
 app.use('/', indexRouter)
+app.use('/authors', authorRouter)
 
 app.listen(process.env.PORT || 5000)
 console.log(`'Server listening on port 5000'`)
