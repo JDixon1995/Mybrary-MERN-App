@@ -13,22 +13,21 @@ router.get('/new', (req, res) => {
 })
 
 //Create Author Route
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
     const author = new Author({
         name: req.body.name
     })
-    author.save((err, newAuthor) => {
-        if (err) {
-            let locals = { errorMessage: 'Error creating Author'}
-            res.render('authors/new', {
-                author: author,
-                locals: locals
-            })
-        } else {
-            // res.redirect(`authors/${newAuthor.id}`)
-            res.redirect('authors')
-        }
-    })
+    try {
+        const newAuthor = await author.save()
+        //res.redirect(`authors/${newAuthor.id}`)
+        res.redirect('authors')
+    } catch {
+        let locals = { errorMessage: 'Error creating Author'}
+        res.render('authors/new', {
+            author: author,
+            locals: locals
+        })
+    }
 })
 
 module.exports = router
