@@ -31,6 +31,7 @@ db.once('open', () => console.log('Connected to Mongoose.'))
 
 app.use('/', indexRouter)
 app.use('/authors', authorRouter)
+app.use('/books', bookRouter)
 
 app.listen(process.env.PORT || 5000)
 console.log(`'Server listening on port 5000'`)
