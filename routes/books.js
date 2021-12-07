@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const Book = require('../models/book')
 const Author = require('../models/author')
+const { redirect } = require('express/lib/response')
 const imageMimeTypes = ['image/jpeg', 'image/png','image/gif']
 
 // All Book Route
@@ -44,8 +45,7 @@ router.post('/', async (req, res) => {
     saveCover(book, req.body.cover)
     try {
         const newBook = await book.save()
-        // res.direct(`books/${newBook.id}`)
-        res.redirect('books')
+        res.direct(`books/${newBook.id}`)
     } catch(err) {
         renderNewPage(res, book, true)
     }
@@ -72,6 +72,31 @@ router.get('/:id/edit', async (req, res) => {
     }
 })
 
+//Update Book Route
+router.put('/:id', async (req, res) => {
+    let book
+    try {
+        book = await Book.findById(req.params.id)
+        book.title = req.body.title
+        book.author = req.body.author
+        book.publishDate = new Date(req.body.publishDate)
+        book.pageCount = req.body.pageCount
+        book.description = req.body.description
+        if (req.body.cover != null && req.body.cover !== '') {
+            saveCover(book, req.body.cover)
+        }
+        await book.save()
+        res.redirect(`/books/${book.id}`)
+    } catch(err) {
+        console.log(err)
+        if (book != null) {
+            renderEditPage(res, book, true)
+        } else {
+            res.redirect('/')
+        }
+    }
+})
+
 async function renderNewPage(res, book, hasError = false) {
     renderFormPage(res, book, 'new', hasError)
 }
@@ -87,7 +112,13 @@ async function renderFormPage(res, book, form, hasError = false) {
             authors: authors,
             book: book
         }
-        if (hasError) params.errorMessage = 'Error Creating Book'
+        if (hasError) {
+            if(form === 'edit') {
+                params.errorMessage = 'Error Updating Book'
+            } else {
+                params.errorMessage = 'Error Creating Book'
+            }
+        }
         res.render(`books/${form}`, params)
     } catch {
         res.redirect('/books')
