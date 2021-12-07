@@ -2,7 +2,6 @@ const express = require('express')
 const router = express.Router()
 const Book = require('../models/book')
 const Author = require('../models/author')
-const { redirect } = require('express/lib/response')
 const imageMimeTypes = ['image/jpeg', 'image/png','image/gif']
 
 // All Book Route
@@ -45,11 +44,12 @@ router.post('/', async (req, res) => {
     saveCover(book, req.body.cover)
     try {
         const newBook = await book.save()
-        res.direct(`books/${newBook.id}`)
-    } catch(err) {
+        res.redirect(`books/${newBook.id}`)
+    } catch {
         renderNewPage(res, book, true)
     }
 })
+
 // Show Book Route
 router.get('/:id', async (req, res) => {
     try {
@@ -75,6 +75,7 @@ router.get('/:id/edit', async (req, res) => {
 //Update Book Route
 router.put('/:id', async (req, res) => {
     let book
+
     try {
         book = await Book.findById(req.params.id)
         book.title = req.body.title
@@ -130,11 +131,11 @@ async function renderFormPage(res, book, form, hasError = false) {
             book: book
         }
         if (hasError) {
-            if(form === 'edit') {
+            if (form === 'edit') {
                 params.errorMessage = 'Error Updating Book'
-            } else {
+            } else if (form === 'new') {
                 params.errorMessage = 'Error Creating Book'
-            }
+            } else return
         }
         res.render(`books/${form}`, params)
     } catch {
