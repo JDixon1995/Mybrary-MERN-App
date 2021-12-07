@@ -13,8 +13,7 @@ authorSchema.pre('remove', function(next) {
         if (err) {
             next(err)
         } else if (books.length > 0) {
-            books.forEach(book => book.remove())
-            next()
+            next(new Error('This author still has books.'))
         } else {
             next()
         }
